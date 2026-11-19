@@ -1,0 +1,339 @@
+---
+title: "Teen_health"
+author: "sajal"
+date: "2026-04-13"
+output:
+  html_document: default
+  word_document: default
+---
+Social Media Impact on Student
+
+use of library 
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+Introduction:- In this Data set we are Analysis the students stress level , daily social media use ,sleep hours, screen time before sleep ,depression , anxiety, addiction and also physical activity 
+
+```{r}
+Teen_health<-read.csv("C:/R studio/Project/ca2/Teen_Mental_Health_Dataset.csv")
+View(Teen_health)
+
+```
+
+———————————————–———————————————–———————————————–———————————————–———————————————–
+Level 1: Understanding the Data (Basic Exploration)
+————————————————————————————————————————————————————————————————————————–———————
+Question 1.1: What is the structure of the dataset (number of rows, columns, and data types)?
+column name,head and tail top6,bottom 6 fetch data
+
+```{r}
+#1structure of dataset
+str(Teen_health)
+
+#column names
+names(Teen_health)
+
+#first& lastrows
+head(Teen_health)
+tail(Teen_health)
+
+#2Missing values
+colSums(is.na(Teen_health))
+
+```
+Interpretation: In this i have learn that 1200 records and 13 columns innthis show how many male and female because of use of phone and less sleep stress, anxiety,depression increasing day by day and also know name of colums  The dataset has no missing values, ensuring complete data for analysis. This eliminates the need for imputation and allows seamless filtering, grouping, and feature engineering.
+
+———————————————–———————————————–———————————————–———————————————–———————————————–
+Level 2:Understanding the Data and converting into category
+———————————————–———————————————–———————————————–———————————————–———————————————–
+Question:-A data analyst wants to summarize the Teen_health dataset, check its size, and ensure that categorical variables like gender are properly formatted for analysis.
+
+```{r}
+#Summary
+summary(Teen_health)
+
+#dimensions
+dim(Teen_health)
+
+#Convert gender to factor
+Teen_health$gender <- as.factor(Teen_health$gender)
+
+```
+
+Interpretation: I can see statistical details like minimum, maximum, mean, and also frequency for categorical data. find the number of rows and columns in the dataset. convert the gender column into categorical data so that it can be used properly in analysis and graphs. Converting to factor is important because it helps in grouping, comparison, and visualization (like bar charts).
+
+———————————————–———————————————–———————————————–———————————————–———————————————–
+Level 3:filtering and  small analysis
+————————————————————————————————————————————————————————————————————————–———————
+
+Question:-A student  wants to identify  with high stress levels and extract their basic details like age, gender, and stress level for further analysis.
+
+```{r}
+#3High stress students
+high_stress <- Teen_health %>%
+  filter(stress_level > 7) %>%
+  select(age, gender, stress_level)
+head(high_stress)
+```
+
+Interpretation:to find students with stress level greater than 7.use select only to columnlike  age, gender, and stress level.
+————————————————————————————————————————————————————————————————————————–———————
+
+Question3.1:-identify the top 10 students with the highest stress levels and extract their basic details like age, gender, and stress level for deeper analysis.
+```{r}
+#4top 10 highest stress students
+top_stress <- Teen_health %>%
+  arrange(desc(stress_level)) %>%
+  select(age, gender, stress_level) %>%
+  head(10)
+top_stress
+```
+
+Interpretation:-identify students with the highest stress levels by sorting the dataset in descending order.only relevant columns such as age, gender, and stress level using select().retrieve the top 10 students with the highest stress
+————————————————————————————————————————————————————————————————————————–———————
+Question3.2 want to fetech data that stress levels to identify which students are most and least stressed.
+
+```{r}
+#5ranking students by stress
+rank_stress <- Teen_health %>%
+  arrange(desc(stress_level)) %>%
+  mutate(rank = row_number())
+head(rank_stress)
+```
+Interpretation:-create new column use arrange descending use mutaate and fetch data of top most who have most stress 
+
+————————————————————————————————————————————————————————————————————————–———————
+Level 4: Data Visualization and Trend Analysis
+————————————————————————————————————————————————————————————————————————–———————
+Question:- wants to analyze the distribution of stress levels among students to understand how stress is spread across the dataset.
+
+```{r}
+#7distribution of stress levels
+ggplot(Teen_health, aes(x = stress_level)) +
+  geom_histogram(binwidth = 2, fill = "red", color = "black") +
+  labs(title = "Distribution of Stress Levels")
+```
+Interpretation:-By use of ggplot and histogram learning how trends of  most students have low, medium, or high stress levels.
+Visualization makes easy to understand patterns and trends in the data. 
+————————————————————————————————————————————————————————————————————————–———————
+Level 5: Feature Engineering and creating new column
+————————————————————————————————————————————————————————————————————————–———————
+Question:-analyst wants to classify students into stress categories (High, Medium, Low) based on their stress level no of student in each category
+
+```{r}
+
+#8stress categories
+Teen_health$stress_group <- ifelse(Teen_health$stress_level >= 7, "High",
+                                   ifelse(Teen_health$stress_level >= 4, 
+                                          "Medium", "Low"))
+ggplot(Teen_health, aes(x = stress_group, fill = stress_group)) +
+  geom_bar() +
+  labs(title = "Stress Categories")
+```
+
+Interpretation:- learnt how to make new column and convert into categories for analysis use of barchar to comparise between data use if ifelse i easy to covert into (high, medium and low )category 
+
+
+Question:-checking relationship between daily social media usage and stress levels usage leads to higher stress.
+```{r}
+#9social media vs stress
+ggplot(Teen_health, aes(x = daily_social_media_hours, y = stress_level)) +
+  geom_point(color = "blue") +
+  labs(title = "Social Media vs Stress")
+```
+Interpretation:-The scatter plot shows no clear relationship between daily social media hours and stress level. The data points are randomly scattered, and there is no visible slope—neither positive, negative, nor constant.
+
+Question:- wants to compare the average stress levels between different genders to understand if stress varies by gender.
+```{r}
+#10average stress by gender
+gender_avg <- Teen_health %>%
+  group_by(gender) %>%
+  summarise(avg_stress = mean(stress_level))
+ggplot(gender_avg, aes(x = gender, y = avg_stress, fill = gender)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Stress by Gender")
+```
+Interpretation:- in this i have learnt how to group columns make bar char to compare between gender and find avg and anlysis dataset summaerise it 
+————————————————————————————————————————————————————————————————————————–———————
+Data Visualization and Trend Analysis
+————————————————————————————————————————————————————————————————————————–———————
+Question:- wants to analyze the distribution of sleep hours among students to understand their sleeping pattern
+
+```{r}
+#11sleep distribution
+ggplot(Teen_health, aes(x = sleep_hours)) +
+  geom_histogram(binwidth = 1, fill = "green", color = "black") +
+  labs(title = "Sleep Hours Distribution")
+```
+Interpretation:- in this with the use of hisogram i learnt how sleep hours are spread across different ranges.it help whether most students get adequate sleep or not. help to understand beahviour 
+
+Question:-i wants to check the relationship between sleep hours and stress levels among students to determine whether less sleep leads to higher stress.
+```{r}
+#12sleep vs stress
+ggplot(Teen_health, aes(x = sleep_hours, y = stress_level)) +
+  geom_jitter(color = "darkblue", width = 0.2, height = 0.2) +
+  geom_smooth(method = "lm", color = "red", se = FALSE)
+```
+Interpretation:-the scatter plot with a regression line shows a slight negative relationship between sleep hours and stress level. As sleep hours increase, stress level tends to decrease slightly, but the trend is very weak.
+
+Question:-analyze how screen time before sleep affects students’ total sleep hours to understand its impact on sleep patterns.
+```{r}
+#13screen time before sleep vs after sleep
+ggplot(Teen_health, aes(x = screen_time_before_sleep, y = sleep_hours)) +
+  geom_point(color = "purple") +
+  geom_smooth(method = "lm", color = "blue", se = FALSE)+
+  labs(title = "Screen Time Before Sleep vs Sleep",
+       x = "Screen Time Before Sleep",
+       y = "Sleep Hours")
+```
+Interpretation:-The scatter plot with regression line shows a slight positive relationship between screen time before sleep and sleep hours. As screen time increases, sleep hours also increase slightly, but the relationship is very weak
+
+Question:-checking relationship between physical activity and stress levels to check whether increased physical activity reduces stress among students.
+```{r}
+#14physical activity vs stress
+ggplot(Teen_health, aes(x = physical_activity, y = stress_level)) +
+  geom_point(color = "orange") +
+  geom_smooth(method = "lm", color = "blue") +
+  labs(title = "Physical Activity vs Stress")
+```
+Interpretation:-The scatter plot with regression line shows a very slight positive relationship between physical activity and stress level. However, the slope is almost flat, indicating that the relationship is extremely weak and practically negligible
+
+Question:-wants to analyze which social media platforms are most used by students and compare the number of users for each platform.
+```{r}
+#15graph for use of socal media
+ggplot(Teen_health, aes(x = platform_usage, fill = platform_usage)) +
+  geom_bar() +
+  labs(title = "Number of Students Using Each Social Media App",
+       x = "Social Media Platform",
+       y = "Number of Students") 
+
+```
+Interpretation:-visualize categorical data using a bar chart to compare the number of students using different social media platforms.I was able to see which platform is most popular among students
+
+
+CA 3 Question start 
+ Question :- find Correlation in male how much % male use wihch platfrom 
+
+```{r}
+male_data <- Teen_health[Teen_health$gender == "male", ]
+
+values <- table(male_data$platform_usage)
+labels <- paste(names(values),
+                round(values/sum(values)*100), "%")
+
+pie(values, labels = labels,
+    col = rainbow(length(values)),
+    main = "Male Platform Usage (%)")
+```
+Interpretation:-I used a bar chart to compare how many male students use different social media platforms. From this chart i see which platform is the most popular among  the male students.
+
+Question:- How do sleep hours affect the stress level of students?
+```{r}
+model <- lm(stress_level ~ sleep_hours, data = Teen_health)
+summary(model)
+predict(model, newdata = data.frame(sleep_hours = 6))
+```
+Interpretation:-Students who sleep more tend to have weak relation  stress levels. This means proper sleep helps reduce stress and if less sleep high stress level for that you have to sleep well p < 0.05 → significant other Only 0.012%
+
+Question:-What relationship exists between daily social media hours and screen time before sleep?
+```{r}
+pairs(Teen_health[, c("daily_social_media_hours", "screen_time_before_sleep")], main = "Pair Plot: Social Media vs Screen Time", pch = 19, col = "blue")
+```
+Interpretation:- The pair plot shows the relationship between daily social media usage and screen time before sleep. The data points are scattered randomly, indicating no clear or strong relationship between the two variables
+
+Question:-What is the cumulative distribution of students’ physical activity levels?
+```{r}
+x <- sort(Teen_health$physical_activity)
+y <- cumsum(rep(1, length(x)))
+plot(x, y,
+     type = "l",
+     col = "blue",
+     main = "CFD of Physical Activity",
+     xlab = "Physical Activity",
+     ylab = "Cumulative Frequency")
+```
+
+interpretation:-The cumulative frequency graph shows how the number of students increases as physical activity levels increase.I line graph It helps in understanding how many students fall below or within a certain level of physical activity.”
+
+Question:-How is stress level distributed among students and are there any outliers?
+
+```{r}
+boxplot(Teen_health$stress_level,
+        col = "lightblue",
+        main = "Box Plot of Stress Level",
+        ylab = "Stress Level")
+```
+Interpretation:-The box plot shows the distribution of stress levels among students. It displays the median, spread of data, and possible Outliers. It helps in understanding how stress levels vary among students.
+
+
+
+Question:-What is the distribution of social media addiction levels among students?
+```{r}
+# Create categories (Low, Medium, High addiction)
+Teen_health$addiction_level <- case_when(
+  Teen_health$daily_social_media_hours <= 2 ~ "Low",
+  Teen_health$daily_social_media_hours <= 5 ~ "Medium",
+  Teen_health$daily_social_media_hours <= 10 ~ "High"
+)
+values <- table(Teen_health$addiction_level)
+
+labels <- paste(names(values),
+                round(values/sum(values)*100), "%")
+
+pie(values,
+    labels = labels,
+    col = c("green","yellow","red"),
+    main = "Social Media Addiction Level (%)")
+```
+Interpretation:-The pie chart shows the percentage distribution of students based on their level of social media usage. It categorizes students into low, medium, and high addiction levels table count student 
+
+
+Question:-Is there a relationship between sleep hours and stress level among students?
+```{r}
+
+cor(Teen_health$sleep_hours,
+    Teen_health$stress_level)
+
+```
+interpretation:-The correlation value is very close to 0, which indicates that there is no strong relationship between sleep hours ind  and stress level dep .
+
+
+Question:-Is there a relationship between social media usage and stress level among students?
+```{r}
+cor(Teen_health[, c("sleep_hours",
+                   "daily_social_media_hours",
+                   "stress_level")])
+```
+Interpretation:-The correlation value is close to 0, which indicates that there is no strong relationship between social media usage and stress level sleep vs social,sleep vs stress, social vs stress
+
+
+Question:-How do sleep hours affect stress level among students?”
+```{r}
+model1 <- lm(stress_level ~ sleep_hours, data = Teen_health)
+summary(model1)
+
+```
+Interpretation:-The regression analysis shows that sleep hours do not have a significant effect on stress level dep . Although there is a slight negative relationship, it is very weak and not meaningful.
+
+Question:-Does social media usage affect stress level among students?
+```{r}
+model2 <- lm(stress_level ~ daily_social_media_hours, data = Teen_health)
+summary(model2)
+```
+Interpretation:-The regression analysis shows that social media usage does not have a significant effect on stress level. The relationship between the two variables is very weak.
+
+Question:-How do sleep hours, social media usage, and physical activity together affect stress level among students?
+```{r}
+model_multi <- lm(stress_level ~ sleep_hours +daily_social_media_hours + physical_activity,data = Teen_health)
+summary(model_multi)
+
+```
+Interpretation:-The multiple regression analysis shows that none of the variables significantly affect stress level. The relationships are weak, and the model does not explain much variation in stress.
+
+
+Conclusion:-
+```{r}
+
+```
